@@ -24,8 +24,7 @@
 					],
 					end: {
 						value: 1
-					},
-					result: []
+					}
 				};
 			},
 			methods: {
@@ -48,9 +47,9 @@
 					const Hend = Number(this.end.value);
 
 					// [h12+H1, h23, ..., h78, h89-H9]’
-					const hobs = this.observedValues.map(obs => Number(obs.value));
-					hobs[0] += Hstart;
-					hobs[n-1] -= Hend;
+					const h_obs = this.observedValues.map(obs => Number(obs.value));
+					h_obs[0] += Hstart;
+					h_obs[n-1] -= Hend;
 
 					// X
 					const X = [];
@@ -69,22 +68,19 @@
 					}
 
 					// β = [H2, H3, ..., H8]’
-					// const beta = math.multiply(
-					// 	math.inv(math.multiply(math.transpose(X), X)),
-					// 	math.multiply(math.transpose(X), hobs));
 					const beta = math.chain(
 						math.inv(math.multiply(math.transpose(X), X))
 					).multiply(
 						math.transpose(X)
 					).multiply(
-						hobs
+						h_obs
 					).done();
 
 					// 不偏分散s^2
 					const s2 = math.chain(
-						math.subtract(hobs, math.multiply(X, beta))
+						math.subtract(h_obs, math.multiply(X, beta))
 					).multiply(
-						math.transpose(math.subtract(hobs,math.multiply(X, beta)))
+						math.transpose(math.subtract(h_obs,math.multiply(X, beta)))
 					).done();
 
 					return {

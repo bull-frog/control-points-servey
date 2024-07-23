@@ -16,41 +16,53 @@
 						id: 1
 					},
 					start: {
-						value: 0
+						x: 0,
+						y: 0,
+						theta: 0
 					},
 					observedValues: [
-						{ value: 1 },
-						{ value: 2 }
+						{
+							alpha: 0,
+							s: 0
+						}
 					],
 					end: {
-						value: 1
-					},
-					result: []
+						x: 0,
+						y: 0
+					}
 				};
 			},
 			methods: {
 				addObs() {
 					this.observedValues.push({
-						value: 0
+						alpha: 0,
+						s: 0
 					});
 				},
 				calculate() {
+
 					// 計算を実行
 					const n = this.observedValues.length;
 
 					if (n < 2) {
 						return {
-							beta: []
+							beta: [],
+							s: null
 						};
 					}
 
-					const Hstart = Number(this.start.value);
-					const Hend = Number(this.end.value);
+					const startX = Number(this.start.x);
+					const startY = Number(this.start.y);
+					const endX = Number(this.end.x);
+					const endY = Number(this.end.y);
 
-					// [h12+H1, h23, ..., h78, h89-H9]’
-					const hobs = this.observedValues.map(obs => Number(obs.value));
-					hobs[0] += Hstart;
-					hobs[n-1] -= Hend;
+					// xに関する観測値yベクトル
+					const obsX = this.observedValues.map(obs => Number(obs.s) * Math.cos((this.start.theta + Number(obs.alpha)) / 180 * Math.PI));
+					const obsY = this.observedValues.map(obs => Number(obs.s) * Math.sin((this.start.theta + Number(obs.alpha)) / 180 * Math.PI));
+					obsX[0] += startX;
+					obsY[0] += startY;
+					obsX[n - 1] -= endX;
+					obsY[n - 1] -= endY;
 
 					// X
 					const X = [];
@@ -68,28 +80,48 @@
 						X.push(row);
 					}
 
-					// β = [H2, H3, ..., H8]’
-					// const beta = math.multiply(
-					// 	math.inv(math.multiply(math.transpose(X), X)),
-					// 	math.multiply(math.transpose(X), hobs));
-					const beta = math.chain(
+					// β = []’
+					const betaX = math.chain(
 						math.inv(math.multiply(math.transpose(X), X))
 					).multiply(
 						math.transpose(X)
 					).multiply(
-						hobs
+						obsX
+					).done();
+					const betaY = math.chain(
+						math.inv(math.multiply(math.transpose(X), X))
+					).multiply(
+						math.transpose(X)
+					).multiply(
+						obsY
 					).done();
 
 					// 不偏分散s^2
-					const s2 = math.chain(
-						math.subtract(hobs, math.multiply(X, beta))
+					const s2X = math.chain(
+						math.subtract(obsX, math.multiply(X, betaX))
 					).multiply(
-						math.transpose(math.subtract(hobs,math.multiply(X, beta)))
+						math.transpose(math.subtract(obsX, math.multiply(X, betaX)))
 					).done();
+					const s2Y = math.chain(
+						math.subtract(obsY, math.multiply(X, betaY))
+					).multiply(
+						math.transpose(math.subtract(obsY, math.multiply(X, betaY)))
+					).done();
+
+					const beta = [];
+					for (let i = 0; i < n - 1; i++) {
+						beta.push({
+							x: betaX[i],
+							y: betaY[i]
+						});
+					}
 
 					return {
 						beta: beta,
-						s: Math.sqrt(math.norm(s2))
+						s: {
+							x: Math.sqrt(math.norm(s2X)),
+							y: Math.sqrt(math.norm(s2Y))
+						}
 					};
 				}
 			}
@@ -105,43 +137,57 @@
 
 		<h2>入力</h2>
 		<div>
-			<label>始点番号</label><input type="number" v-model="startId.id"><br>
-			<label>始点{{Number(startId.id)}}標高</label><input type="text" v-model="start.value">
+			<label>始点番号</label>：<input type="number" v-model="startId.id"><br>
+			<label>始点{{Number(startId.id)}} X：</label><input type="text" v-model="start.x">&nbsp;
+			<label>Y：</label><input type="text" v-model="start.y">&nbsp;
+			<label>θ：</label><input type="text" v-model="start.theta">
 		</div>
 
 		<div>
 			<div v-for="(obs, index) in observedValues" :key="index">
-				<label>h_{{ `${index + Number(startId.id)}${index + Number(startId.id) + 1}` }}</label>
-				<input type="number" v-model="obs.value">
+				<label>α_{{ index + Number(startId.id) }}：</label><input type="number" v-model="obs.alpha">&nbsp;
+				<label>s_{{ index + Number(startId.id) }}：</label><input type="number" v-model="obs.s">&nbsp;
 				<button @click="observedValues.splice(index, 1)">削除</button>
 			</div>
 			<button @click="addObs">追加</button>
 		</div>
 
 		<div>
-			<label>終点{{ observedValues.length + Number(startId.id) }}標高</label>
-			<input type="number" v-model="end.value">
+			<label>終点{{ observedValues.length + Number(startId.id) }} X：</label><input type="text" v-model="end.x">&nbsp;
+			<label>Y：</label><input type="text" v-model="end.y">
 		</div>
 
 		<h2>結果</h2>
 		<div>
 			<table>
+				<thead>
+					<tr>
+						<th></th>
+						<th>X</th>
+						<th>Y</th>
+					</tr>
+				</thead>
 				<tr>
-					<th>H{{Number(startId.id)}}</th><td>{{start.value}}</td>
+					<th>H{{Number(startId.id)}}</th>
+					<td>{{start.x}}</td>
+					<td>{{start.y}}</td>
 				</tr>
 				<tr v-for="(calc, index) in calculate().beta" :key="index">
-					<th>H{{index + Number(startId.id) + 1}}</th><td>{{calc}}</td>
+					<th>H{{index + Number(startId.id) + 1}}</th>
+					<td>{{calc.x}}</td>
+					<td>{{calc.y}}</td>
 				</tr>
 				<tr>
-					<th>H{{Number(startId.id) + observedValues.length}}</th><td>{{end.value}}</td>
+					<th>H{{Number(startId.id) + observedValues.length}}</th>
+					<td>{{end.x}}</td>
+					<td>{{end.y}}</td>
 				</tr>
 			</table>
 		</div>
 		<div>
-			<div>
-				不偏分散s = 
-				<span style="user-select: all;">{{calculate().s}}</span>
-			</div>
+			<p>
+				不偏分散：<span style="user-select: all;">{{calculate().s}}</span>
+			</p>
 		</div>
 	</div>
 </body>
