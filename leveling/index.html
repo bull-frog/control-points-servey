@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>水準測量</title>
+	<link rel="stylesheet" href="../css/style.css">
+	<script src="../js/math.js"></script>
+	<script type="module">
+		import { createApp } from "https://unpkg.com/vue@3.2.4/dist/vue.esm-browser.prod.js";
+		const app = createApp({
+			data() {
+				return {
+					startId: {
+						id: 1
+					},
+					start: {
+						value: 0
+					},
+					observedValues: [
+						{ value: 1 },
+						{ value: 2 }
+					],
+					end: {
+						value: 1
+					},
+					result: []
+				};
+			},
+			methods: {
+				addObs() {
+					this.observedValues.push({
+						value: 0
+					});
+				},
+				calculate() {
+					// 計算を実行
+					const n = this.observedValues.length;
+
+					if (n < 2) {
+						return {
+							beta: []
+						};
+					}
+
+					const Hstart = Number(this.start.value);
+					const Hend = Number(this.end.value);
+
+					// [h12+H1, h23, ..., h78, h89-H9]’
+					const hobs = this.observedValues.map(obs => Number(obs.value));
+					hobs[0] += Hstart;
+					hobs[n-1] -= Hend;
+
+					// X
+					const X = [];
+					for (let i = 0; i < n; i++) {
+						const row = [];
+						for (let j = 0; j < n - 1; j++) {
+							if (j === i) {
+								row.push(1);
+							} else if (j === i - 1) {
+								row.push(-1);
+							} else {
+								row.push(0);
+							}
+						}
+						X.push(row);
+					}
+
+					// β = [H2, H3, ..., H8]’
+					// const beta = math.multiply(
+					// 	math.inv(math.multiply(math.transpose(X), X)),
+					// 	math.multiply(math.transpose(X), hobs));
+					const beta = math.chain(
+						math.inv(math.multiply(math.transpose(X), X))
+					).multiply(
+						math.transpose(X)
+					).multiply(
+						hobs
+					).done();
+
+					// 不偏分散s^2
+					const s2 = math.chain(
+						math.subtract(hobs, math.multiply(X, beta))
+					).multiply(
+						math.transpose(math.subtract(hobs,math.multiply(X, beta)))
+					).done();
+
+					return {
+						beta: beta,
+						s: Math.sqrt(math.norm(s2))
+					};
+				}
+			}
+		});
+		app.mount("#app");
+	</script>
+</head>
+
+<body>
+	<div id="app">
+
+		<h1>水準測量</h1>
+
+		<h2>入力</h2>
+		<div>
+			<label>始点番号</label><input type="number" v-model="startId.id"><br>
+			<label>始点{{Number(startId.id)}}標高</label><input type="text" v-model="start.value">
+		</div>
+
+		<div>
+			<div v-for="(obs, index) in observedValues" :key="index">
+				<label>h_{{ `${index + Number(startId.id)}${index + Number(startId.id) + 1}` }}</label>
+				<input type="number" v-model="obs.value">
+				<button @click="observedValues.splice(index, 1)">削除</button>
+			</div>
+			<button @click="addObs">追加</button>
+		</div>
+
+		<div>
+			<label>終点{{ observedValues.length + Number(startId.id) }}標高</label>
+			<input type="number" v-model="end.value">
+		</div>
+
+		<h2>結果</h2>
+		<div>
+			<table>
+				<tr>
+					<th>H{{Number(startId.id)}}</th><td>{{start.value}}</td>
+				</tr>
+				<tr v-for="(calc, index) in calculate().beta" :key="index">
+					<th>H{{index + Number(startId.id) + 1}}</th><td>{{calc}}</td>
+				</tr>
+				<tr>
+					<th>H{{Number(startId.id) + observedValues.length}}</th><td>{{end.value}}</td>
+				</tr>
+			</table>
+		</div>
+		<div>
+			<div>
+				不偏分散s = 
+				<span style="user-select: all;">{{calculate().s}}</span>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

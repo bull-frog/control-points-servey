@@ -1,0 +1,17 @@
+#app>* {
+	margin-top: 24px;
+}
+
+table {
+	border-collapse: collapse;
+	user-select: auto;
+}
+
+table {
+	user-select: all;
+}
+
+td,
+th {
+	border: 1px solid gray;
+}
