@@ -29,7 +29,13 @@
 					end: {
 						x: 0,
 						y: 0
-					}
+					},
+					result: [
+						{
+							x: 0,
+							y: 0
+						}
+					]
 				};
 			},
 			methods: {
@@ -57,8 +63,18 @@
 					const endY = Number(this.end.y);
 
 					// xに関する観測値yベクトル
-					const obsX = this.observedValues.map(obs => Number(obs.s) * Math.cos((this.start.theta + Number(obs.alpha)) / 180 * Math.PI));
-					const obsY = this.observedValues.map(obs => Number(obs.s) * Math.sin((this.start.theta + Number(obs.alpha)) / 180 * Math.PI));
+					const obsAlpha = this.observedValues.map(obs => Number(obs.alpha));
+					const obsTheta = [Number(this.start.theta) + obsAlpha[0]];
+					for (let i = 1; i < n; i++) {
+						obsTheta.push(obsTheta[i - 1] + obsAlpha[i] - 180);
+					}
+					console.log(obsTheta);
+					const obsX = this.observedValues.map((obs, index) => {
+						return Number(obs.s) * Math.cos(obsTheta[index] / 180 * Math.PI)
+					});
+					const obsY = this.observedValues.map((obs, index) => {
+						return Number(obs.s) * Math.sin(obsTheta[index] / 180 * Math.PI)
+					});
 					obsX[0] += startX;
 					obsY[0] += startY;
 					obsX[n - 1] -= endX;
@@ -108,16 +124,18 @@
 						math.transpose(math.subtract(obsY, math.multiply(X, betaY)))
 					).done();
 
-					const beta = [];
+					// resultのすべての項目を削除
+					this.result.splice(0, this.result.length);
 					for (let i = 0; i < n - 1; i++) {
-						beta.push({
+						this.result.push({
 							x: betaX[i],
 							y: betaY[i]
 						});
 					}
 
+					
 					return {
-						beta: beta,
+						beta: this.result,
 						s: {
 							x: Math.sqrt(math.norm(s2X)),
 							y: Math.sqrt(math.norm(s2Y))
@@ -133,7 +151,7 @@
 <body>
 	<div id="app">
 
-		<h1>水準測量</h1>
+		<h1>トラバース測量</h1>
 
 		<h2>入力</h2>
 		<div>
@@ -189,6 +207,7 @@
 				不偏分散：<span style="user-select: all;">{{calculate().s}}</span>
 			</p>
 		</div>
+
 	</div>
 </body>
 
