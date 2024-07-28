@@ -16,6 +16,6 @@ th {
 	border: 1px solid gray;
 }
 
-/* #plot {
-
-} */
+input {
+	width: 80px;
+}
