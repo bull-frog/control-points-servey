@@ -29,13 +29,7 @@
 					end: {
 						x: 0,
 						y: 0
-					},
-					result: [
-						{
-							x: 0,
-							y: 0
-						}
-					]
+					}
 				};
 			},
 			methods: {
@@ -124,18 +118,16 @@
 						math.transpose(math.subtract(obsY, math.multiply(X, betaY)))
 					).done();
 
-					// resultのすべての項目を削除
-					this.result.splice(0, this.result.length);
+					const beta = [];
 					for (let i = 0; i < n - 1; i++) {
-						this.result.push({
+						beta.push({
 							x: betaX[i],
 							y: betaY[i]
 						});
 					}
 
-					
 					return {
-						beta: this.result,
+						beta: beta,
 						s: {
 							x: Math.sqrt(math.norm(s2X)),
 							y: Math.sqrt(math.norm(s2Y))
@@ -186,17 +178,17 @@
 					</tr>
 				</thead>
 				<tr>
-					<th>H{{Number(startId.id)}}</th>
+					<th>既知点 {{Number(startId.id)}}</th>
 					<td>{{start.x}}</td>
 					<td>{{start.y}}</td>
 				</tr>
 				<tr v-for="(calc, index) in calculate().beta" :key="index">
-					<th>H{{index + Number(startId.id) + 1}}</th>
+					<th>未知点 {{index + Number(startId.id) + 1}}</th>
 					<td>{{calc.x}}</td>
 					<td>{{calc.y}}</td>
 				</tr>
 				<tr>
-					<th>H{{Number(startId.id) + observedValues.length}}</th>
+					<th>既知点 {{Number(startId.id) + observedValues.length}}</th>
 					<td>{{end.x}}</td>
 					<td>{{end.y}}</td>
 				</tr>
