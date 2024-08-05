@@ -143,7 +143,7 @@
 			<div v-for="(obs, index) in observedValuesUp" :key="index">
 				<label>h_{{ `${index * orientation.value + Number(startId.id)}_${index * orientation.value + Number(startId.id) + orientation.value}` }}</label>
 				<input type="number" v-model="obs.value">
-				<button @click="observedValuesUp.splice(index, 1)">削除</button>
+				<button @click="observedValuesUp.splice(index, 1); observedValuesDown.splice(index, 1)">削除</button>
 			</div>
 			<button @click="addObs">追加</button>
 		</div>
