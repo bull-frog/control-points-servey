@@ -81,6 +81,13 @@
 					const startY = Number(this.start.y);
 					const endX = Number(this.end.x);
 					const endY = Number(this.end.y);
+					if ((startX != 0 && !startX) || (startY != 0 && !startY) || (endX != 0 && !endX) || (endY != 0 && !endY)) {
+						return {
+							beta: [],
+							s: null
+						};
+					}
+					
 
 					// 角度は加算していく
 					const obsAlphaUp = this.observedValuesUp.map(obs => { return Number(obs.degrees) + Number(obs.minutes) / 60 + Number(obs.seconds) / 3600; });
@@ -257,7 +264,7 @@
 					<input type="number" v-model="obs.seconds">”
 				</span>　
 				<label>s_{{ index * orientation.value + Number(startId.id) }}_{{ (index + 1) * orientation.value + Number(startId.id) }}：</label><input type="number" v-model="obs.s">&nbsp;
-				<button @click="observedValuesUp.splice(index, 1)">削除</button>
+				<button @click="observedValuesUp.splice(index, 1); observedValuesDown.splice(index, 1)">削除</button>
 			</div>
 			<button @click="addObs">追加</button>
 		</div>
@@ -303,18 +310,18 @@
 				</thead>
 				<tr>
 					<th>既知点 {{Number(startId.id)}}</th>
-					<td>{{start.x.toFixed(3)}}</td>
-					<td>{{start.y.toFixed(3)}}</td>
+					<td>{{start.x ? start.x.toFixed(3) : start.x}}</td>
+					<td>{{start.y ? start.y.toFixed(3) : start.y}}</td>
 				</tr>
 				<tr v-for="(calc, index) in calculate().beta" :key="index">
 					<th>未知点 {{(index + 1) * orientation.value + Number(startId.id)}}</th>
-					<td>{{calc.x.toFixed(3)}}</td>
-					<td>{{calc.y.toFixed(3)}}</td>
+					<td>{{calc.x ? calc.x.toFixed(3) : calc.x}}</td>
+					<td>{{calc.y ? calc.y.toFixed(3) : calc.y}}</td>
 				</tr>
 				<tr>
 					<th>既知点 {{Number(startId.id) + observedValuesUp.length * orientation.value}}</th>
-					<td>{{end.x.toFixed(3)}}</td>
-					<td>{{end.y.toFixed(3)}}</td>
+					<td>{{end.x ? end.x.toFixed(3) : end.x}}</td>
+					<td>{{end.y ? end.y.toFixed(3) : end.y}}</td>
 				</tr>
 			</table>
 		</div>
