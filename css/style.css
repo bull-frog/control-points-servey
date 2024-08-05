@@ -14,8 +14,56 @@ table {
 td,
 th {
 	border: 1px solid gray;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+td {
+	font-family: monospace;
+	
 }
 
 input {
-	width: 80px;
+	width: 60px;
+	-moz-appearance: textfield;
+	appearance: textfield;
+	font-family: monospace;
+}
+
+.coord {
+	display: inline-block;
+	border: 1px solid gray;
+	padding: 2px;
+	margin-top: 6px;
+	border-radius: 2px;
+}
+
+.coord > input {
+	border: none;
+	width: 60px;
+	text-align: right;
+	padding-right: 4px;
+	background-color: #f0f0f0;
+}
+
+.deg {
+	display: inline-block;
+	border: 1px solid gray;
+	padding: 2px;
+	margin-top: 6px;
+	border-radius: 2px;
+}
+
+.deg > input {
+	border: none;
+	width: 30px;
+	text-align: right;
+	padding-right: 4px;
+	background-color: #f0f0f0;
+}
+
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
 }
