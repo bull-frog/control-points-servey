@@ -151,7 +151,7 @@
 		<div>
 			<h3>復路</h3>
 			<div v-for="(obs, index) in observedValuesDown" :key="index">
-				<label>h_{{ `${index * orientation.value + Number(startId.id) + orientation.value}_${index * orientation.value + Number(startId.id)}` }}</label>
+				<label>h_{{ `${(observedValuesUp.length - index - 1) * orientation.value + Number(startId.id) + orientation.value}_${(observedValuesUp.length - index - 1) * orientation.value + Number(startId.id)}` }}</label>
 				<input type="number" v-model="obs.value">
 			</div>
 		</div>
