@@ -81,7 +81,7 @@
 						math.subtract(h_obs, math.multiply(X, beta))
 					).multiply(
 						math.transpose(math.subtract(h_obs,math.multiply(X, beta)))
-					).done() * (n + 1);
+					).done();
 
 					return {
 						beta: beta,
