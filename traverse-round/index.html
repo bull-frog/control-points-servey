@@ -216,7 +216,16 @@
 						],
 						inspection: [
 							{
-								label: ""
+								label: "δX",
+								value: goalXUp - endX
+							},
+							{
+								label: "δY",
+								value: goalYUp - endY
+							},
+							{
+								label: "水平位置の併合差 δS",
+								value: Math.sqrt((goalXUp - endX) ** 2 + (goalYUp - endY) ** 2)
 							}
 						]
 					};
@@ -303,6 +312,12 @@
 
 		<h2>結果</h2>
 		<div>
+			<h3>閉合差</h3>
+			<p v-for="(s, index) in calculate().inspection" :key="index">
+				{{s.label}}: {{s.value.toFixed(6)}}
+			</p>
+			
+			<h3>新点の座標</h3>
 			<table>
 				<thead>
 					<tr>
@@ -327,8 +342,8 @@
 					<td>{{end.y ? end.y.toFixed(3) : end.y}}</td>
 				</tr>
 			</table>
-		</div>
-		<div>
+			
+			<h3>標準偏差</h3>
 			<p v-for="(s, index) in calculate().s" :key="index">
 				{{s.label}}: {{s.value.toFixed(6)}}
 			</p>
