@@ -33,20 +33,20 @@
 							s: 0
 						}
 					],
-					observedValuesDown: [
-						{
-							degrees: 180,
-							minutes: 0,
-							seconds: 0,
-							s: 0
-						}
-					],
+					// observedValuesDown: [
+					// 	{
+					// 		degrees: 180,
+					// 		minutes: 0,
+					// 		seconds: 0,
+					// 		s: 0
+					// 	}
+					// ],
 					end: {
 						x: 0,
 						y: 0,
-						degrees: 0,
-						minutes: 0,
-						seconds: 0
+						// degrees: 0,
+						// minutes: 0,
+						// seconds: 0
 					}
 				};
 			},
@@ -58,12 +58,12 @@
 						seconds: 0,
 						s: 0
 					});
-					this.observedValuesDown.push({
-						degrees: 180,
-						minutes: 0,
-						seconds: 0,
-						s: 0
-					});
+					// this.observedValuesDown.push({
+					// 	degrees: 180,
+					// 	minutes: 0,
+					// 	seconds: 0,
+					// 	s: 0
+					// });
 				},
 				calculate() {
 
@@ -87,7 +87,7 @@
 							s: null
 						};
 					}
-					
+
 
 					// 角度は加算していく
 					const obsAlphaUp = this.observedValuesUp.map(obs => { return Number(obs.degrees) + Number(obs.minutes) / 60 + Number(obs.seconds) / 3600; });
@@ -97,13 +97,13 @@
 					}
 					// console.log(obsThetaUp);
 
-					const obsAlphaDown = this.observedValuesDown.map(obs => { return Number(obs.degrees) + Number(obs.minutes) / 60 + Number(obs.seconds) / 3600; });
-					const obsThetaDown = [Number(this.end.degrees) + Number(this.end.minutes) / 60 + Number(this.end.seconds) / 3600 + obsAlphaDown[0]];
-					for (let i = 1; i < n; i++) {
-						obsThetaDown.push(obsThetaDown[i - 1] + obsAlphaDown[i] - 180);
-					}
-					console.log(obsThetaDown);
-					
+					// const obsAlphaDown = this.observedValuesDown.map(obs => { return Number(obs.degrees) + Number(obs.minutes) / 60 + Number(obs.seconds) / 3600; });
+					// const obsThetaDown = [Number(this.end.degrees) + Number(this.end.minutes) / 60 + Number(this.end.seconds) / 3600 + obsAlphaDown[0]];
+					// for (let i = 1; i < n; i++) {
+					// 	obsThetaDown.push(obsThetaDown[i - 1] + obsAlphaDown[i] - 180);
+					// }
+					// console.log(obsThetaDown);
+
 
 					const obsXUp = this.observedValuesUp.map((obs, index) => {
 						return Number(obs.s) * Math.cos(obsThetaUp[index] / 180 * Math.PI)
@@ -112,24 +112,30 @@
 						return Number(obs.s) * Math.sin(obsThetaUp[index] / 180 * Math.PI)
 					});
 
-					const obsXDown = this.observedValuesDown.map((obs, index) => {
-						return Number(obs.s) * Math.cos(obsThetaDown[index] / 180 * Math.PI)
-					});
-					const obsYDown = this.observedValuesDown.map((obs, index) => {
-						return Number(obs.s) * Math.sin(obsThetaDown[index] / 180 * Math.PI)
-					});
+					// const obsXDown = this.observedValuesDown.map((obs, index) => {
+					// 	return Number(obs.s) * Math.cos(obsThetaDown[index] / 180 * Math.PI)
+					// });
+					// const obsYDown = this.observedValuesDown.map((obs, index) => {
+					// 	return Number(obs.s) * Math.sin(obsThetaDown[index] / 180 * Math.PI)
+					// });
+
+					// 往路・復路それぞれの累計から、終点の座標を求める
+					let goalXUp = obsXUp.reduce((previousValue, currentValue) => previousValue + currentValue, 0) + startX;
+					let goalYUp = obsYUp.reduce((previousValue, currentValue) => previousValue + currentValue, 0) + startY;
+					// let goalXDown = obsXDown.reduce((previousValue, currentValue) => previousValue + currentValue, 0) + endX;
+					// let goalYDown = obsYDown.reduce((previousValue, currentValue) => previousValue + currentValue, 0) + endY;
 
 					obsXUp[0] += startX;
 					obsYUp[0] += startY;
 					obsXUp[n - 1] -= endX;
 					obsYUp[n - 1] -= endY;
-					obsXDown[0] += endX;
-					obsYDown[0] += endY;
-					obsXDown[n - 1] -= startX;
-					obsYDown[n - 1] -= startY;
+					// obsXDown[0] += endX;
+					// obsYDown[0] += endY;
+					// obsXDown[n - 1] -= startX;
+					// obsYDown[n - 1] -= startY;
 
-					const obsX = obsXUp.concat(obsXDown);
-					const obsY = obsYUp.concat(obsYDown);
+					const obsX = obsXUp //.concat(obsXDown);
+					const obsY = obsYUp //.concat(obsYDown);
 
 					// X
 					const X = [];
@@ -146,19 +152,19 @@
 						}
 						X.push(row);
 					}
-					for (let i = 0; i < n; i++) {
-						const row = [];
-						for (let j = 0; j < n - 1; j++) {
-							if (j === n - i - 2) {
-								row.push(1);
-							} else if (j === n - i - 1) {
-								row.push(-1);
-							} else {
-								row.push(0);
-							}
-						}
-						X.push(row);
-					}
+					// for (let i = 0; i < n; i++) {
+					// 	const row = [];
+					// 	for (let j = 0; j < n - 1; j++) {
+					// 		if (j === n - i - 2) {
+					// 			row.push(1);
+					// 		} else if (j === n - i - 1) {
+					// 			row.push(-1);
+					// 		} else {
+					// 			row.push(0);
+					// 		}
+					// 	}
+					// 	X.push(row);
+					// }
 
 					// β = []’
 					const betaX = math.chain(
@@ -181,12 +187,12 @@
 						math.subtract(obsX, math.multiply(X, betaX))
 					).multiply(
 						math.transpose(math.subtract(obsX, math.multiply(X, betaX)))
-					).done() / (n + 1);
+					).done() / 1 //(n + 1);
 					const s2Y = math.chain(
 						math.subtract(obsY, math.multiply(X, betaY))
 					).multiply(
 						math.transpose(math.subtract(obsY, math.multiply(X, betaY)))
-					).done() / (n + 1);
+					).done() / 1 //(n + 1);
 
 					const beta = [];
 					for (let i = 0; i < n - 1; i++) {
@@ -198,11 +204,6 @@
 
 					return {
 						beta: beta,
-						// s: {
-						// 	x: Math.sqrt(math.norm(s2X)),
-						// 	y: Math.sqrt(math.norm(s2Y))
-						// }
-						// s: `√(s_x)²: ${Math.sqrt(math.norm(s2X))}, √(s_y)²: ${Math.sqrt(math.norm(s2Y))}, √(s_xy)²: ${Math.sqrt(math.norm(s2Y) + math.norm(s2X))}`
 						s: [
 							{
 								label: "√(s_x)²",
@@ -212,11 +213,11 @@
 								label: "√(s_y)²",
 								value: Math.sqrt(math.norm(s2Y))
 							}
-							// ,
-							// {
-							// 	label: "√(s_xy)²",
-							// 	value: Math.sqrt(math.norm(s2X) + math.norm(s2Y))
-							// }
+						],
+						inspection: [
+							{
+								label: ""
+							}
 						]
 					};
 				}
@@ -229,7 +230,7 @@
 <body>
 	<div id="app">
 
-		<h1>トラバース測量（往復）</h1>
+		<h1>トラバース測量</h1>
 
 		<h2>入力</h2>
 
@@ -270,7 +271,7 @@
 			<button @click="addObs">追加</button>
 		</div>
 
-		<div>
+		<!-- <div>
 			<h3>復路</h3>
 			※ α_{{ observedValuesUp.length * orientation.value + Number(startId.id) }} は、方位標から点{{ (observedValuesUp.length - 1) * orientation.value + Number(startId.id) }}まで時計回りに測った角度。
 			<div v-for="(obs, index) in observedValuesDown" :key="index">
@@ -282,22 +283,23 @@
 				</span>　
 				<label>s_{{ (observedValuesUp.length - index) * orientation.value + Number(startId.id) }}_{{ (observedValuesUp.length - index - 1) * orientation.value + Number(startId.id) }}：</label><input type="number" v-model="obs.s">&nbsp;
 			</div>
-		</div>
+		</div> -->
 
 		<div>
 			<h3>終点</h3>
 			<label>終点{{ observedValuesUp.length * orientation.value + Number(startId.id) }} </label>
 			<span class="coord">
-				<label>X：</label><input type="number" v-model="end.x">, 
+				<label>X：</label><input type="number" v-model="end.x">,
 				<label>Y：</label><input type="number" v-model="end.y">
 			</span><br>
-			<label>方位標の座北方位角θ：</label>
+			<!-- <label>方位標の座北方位角θ：</label>
 			<span class="deg">
 				<input type="number" v-model="end.degrees">°
 				<input type="number" v-model="end.minutes">'
 				<input type="number" v-model="end.seconds">”
-			</span>
+			</span> -->
 		</div>
+
 
 		<h2>結果</h2>
 		<div>
